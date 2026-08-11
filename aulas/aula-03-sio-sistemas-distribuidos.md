@@ -94,7 +94,7 @@ Prof. M.Sc. Howard Cruz Roatti
 - **Infraestrutura:** arquitetura de **Von Neumann**; **cliente-servidor** (2 e 3 camadas); **virtualização**; **computação em nuvem**; Data Center.
 - **Redes:** modelo de camadas **OSI / TCP-IP**; protocolos de aplicação (HTTP, SMTP, FTP…).
 
-<div class="dica">💡 Não confunda: <strong>Data Mining</strong> (garimpar padrões) · <strong>BI</strong> (apoio à decisão) · <strong>Big Data</strong> (volume, velocidade, variedade).</div>
+<div class="dica">💡 <strong>Data Mining</strong>, <strong>BI</strong> e <strong>Big Data</strong> <strong>não são sinônimos</strong> — cada um resolve um problema diferente (voltamos a isso na Q3).</div>
 
 ---
 

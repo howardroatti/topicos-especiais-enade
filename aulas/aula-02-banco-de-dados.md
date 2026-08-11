@@ -223,7 +223,7 @@ D) É uma leitura fantasma.
 
 **Relembrando:** 2PL garante **serialização**, mas **não evita deadlock**. Espera circular → o SGBD **aborta uma vítima** (rollback) e a outra segue. ✅
 
-<div class="dica">💡 Prevenção por timestamp: <em>wait-die</em> / <em>wound-wait</em>.</div>
+<div class="dica">💡 Prevenção por timestamp: <em>wait-die</em> (esperar-morrer) / <em>wound-wait</em> (ferir-esperar).</div>
 
 ---
 
