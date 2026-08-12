@@ -76,6 +76,24 @@ Prof. M.Sc. Howard Cruz Roatti
 
 ---
 
+## ANSI-SPARC — visão em camadas
+
+<svg viewBox="0 0 1000 420" role="img" style="width:100%;max-width:900px;display:block;margin:12px auto 0;font-family:'Segoe UI',Arial,sans-serif">
+ <rect x="150" y="10" width="700" height="90" rx="12" fill="#dbeafe" stroke="#12437f" stroke-width="2"/>
+ <text x="500" y="45" text-anchor="middle" font-size="24" font-weight="700" fill="#0d2b57">NÍVEL EXTERNO</text>
+ <text x="500" y="78" text-anchor="middle" font-size="19" fill="#1f2937">Views — o recorte que cada usuário/app enxerga</text>
+ <text x="500" y="140" text-anchor="middle" font-size="18" font-style="italic" fill="#12437f">&#8597; independência lógica</text>
+ <rect x="150" y="160" width="700" height="90" rx="12" fill="#eef4fb" stroke="#12437f" stroke-width="2"/>
+ <text x="500" y="195" text-anchor="middle" font-size="24" font-weight="700" fill="#0d2b57">NÍVEL CONCEITUAL</text>
+ <text x="500" y="228" text-anchor="middle" font-size="19" fill="#1f2937">Esquema lógico global — tabelas, chaves, relacionamentos</text>
+ <text x="500" y="290" text-anchor="middle" font-size="18" font-style="italic" fill="#12437f">&#8597; independência física</text>
+ <rect x="150" y="310" width="700" height="90" rx="12" fill="#e2e8f0" stroke="#12437f" stroke-width="2"/>
+ <text x="500" y="345" text-anchor="middle" font-size="24" font-weight="700" fill="#0d2b57">NÍVEL INTERNO</text>
+ <text x="500" y="378" text-anchor="middle" font-size="19" fill="#1f2937">Físico — arquivos, páginas, índices, ordenação</text>
+</svg>
+
+---
+
 ## Modelo Relacional (Codd)
 
 <div class="cols">
@@ -156,6 +174,30 @@ Prof. M.Sc. Howard Cruz Roatti
 
 ---
 
+## Mapeamento N:N — a tabela associativa
+
+<svg viewBox="0 0 1000 280" role="img" style="width:100%;max-width:940px;display:block;margin:16px auto 0;font-family:'Segoe UI',Arial,sans-serif">
+ <line x1="260" y1="140" x2="390" y2="140" stroke="#12437f" stroke-width="2"/>
+ <line x1="610" y1="140" x2="740" y2="140" stroke="#12437f" stroke-width="2"/>
+ <text x="285" y="128" text-anchor="middle" font-size="18" font-weight="700" fill="#12437f">1</text>
+ <text x="365" y="128" text-anchor="middle" font-size="18" font-weight="700" fill="#12437f">N</text>
+ <text x="635" y="128" text-anchor="middle" font-size="18" font-weight="700" fill="#12437f">N</text>
+ <text x="715" y="128" text-anchor="middle" font-size="18" font-weight="700" fill="#12437f">1</text>
+ <rect x="40" y="100" width="220" height="80" rx="10" fill="#eef4fb" stroke="#12437f" stroke-width="2"/>
+ <text x="150" y="135" text-anchor="middle" font-size="22" font-weight="700" fill="#0d2b57">ALUNO</text>
+ <text x="150" y="162" text-anchor="middle" font-size="15" fill="#1f2937">PK matricula</text>
+ <rect x="390" y="83" width="220" height="114" rx="10" fill="#fff8e1" stroke="#f0c36d" stroke-width="2"/>
+ <text x="500" y="116" text-anchor="middle" font-size="20" font-weight="700" fill="#0d2b57">CURSA</text>
+ <text x="500" y="143" text-anchor="middle" font-size="14" fill="#1f2937">PK (matricula, cod)</text>
+ <text x="500" y="167" text-anchor="middle" font-size="14" fill="#1f2937">FK ALUNO · FK DISCIPLINA</text>
+ <rect x="740" y="100" width="220" height="80" rx="10" fill="#eef4fb" stroke="#12437f" stroke-width="2"/>
+ <text x="850" y="135" text-anchor="middle" font-size="21" font-weight="700" fill="#0d2b57">DISCIPLINA</text>
+ <text x="850" y="162" text-anchor="middle" font-size="15" fill="#1f2937">PK cod</text>
+ <text x="500" y="250" text-anchor="middle" font-size="18" font-style="italic" fill="#1f2937">O N:N vira duas relações 1:N ligadas pela tabela associativa (PK composta = as 2 FKs)</text>
+</svg>
+
+---
+
 ## Normalização — dependências funcionais
 
 - **DF `X → Y`:** o valor de `X` **determina** `Y` (ex.: `CPF → Nome`); `X` é o **determinante**.
@@ -209,6 +251,27 @@ Prof. M.Sc. Howard Cruz Roatti
 </div>
 
 <div class="aviso">⚠️ Sem normalizar, o depto se repete em toda matrícula → anomalias de inserção, atualização e exclusão.</div>
+
+---
+
+## Normalização — a decomposição (visual)
+
+<svg viewBox="0 0 1000 320" role="img" style="width:100%;max-width:940px;display:block;margin:6px auto 0;font-family:'Segoe UI',Arial,sans-serif">
+ <rect x="215" y="6" width="570" height="66" rx="10" fill="#fde2e1" stroke="#c0392b" stroke-width="2"/>
+ <text x="500" y="34" text-anchor="middle" font-size="17" font-weight="700" fill="#7b241c">Matricula(Aluno, Disciplina, Professor, Depto_Prof)</text>
+ <text x="500" y="58" text-anchor="middle" font-size="14" fill="#7b241c">1 tabela — com dependência parcial e transitiva</text>
+ <text x="500" y="108" text-anchor="middle" font-size="18" font-weight="700" fill="#12437f">decompõe até a 3FN  &#8595;</text>
+ <rect x="30" y="138" width="290" height="86" rx="10" fill="#eef4fb" stroke="#12437f" stroke-width="2"/>
+ <text x="175" y="174" text-anchor="middle" font-size="16" font-weight="700" fill="#0d2b57">Matricula</text>
+ <text x="175" y="198" text-anchor="middle" font-size="14" fill="#1f2937">(Aluno, Disciplina)</text>
+ <rect x="355" y="138" width="290" height="86" rx="10" fill="#eef4fb" stroke="#12437f" stroke-width="2"/>
+ <text x="500" y="174" text-anchor="middle" font-size="16" font-weight="700" fill="#0d2b57">Turma</text>
+ <text x="500" y="198" text-anchor="middle" font-size="14" fill="#1f2937">(Disciplina, Professor)</text>
+ <rect x="680" y="138" width="290" height="86" rx="10" fill="#eef4fb" stroke="#12437f" stroke-width="2"/>
+ <text x="825" y="174" text-anchor="middle" font-size="16" font-weight="700" fill="#0d2b57">Professor_Info</text>
+ <text x="825" y="198" text-anchor="middle" font-size="14" fill="#1f2937">(Professor, Depto_Prof)</text>
+ <text x="500" y="278" text-anchor="middle" font-size="17" font-style="italic" fill="#1f2937">cada fato num só lugar → sem anomalias de inserção/atualização/exclusão</text>
+</svg>
 
 ---
 
@@ -305,6 +368,26 @@ Prof. M.Sc. Howard Cruz Roatti
 
 ---
 
+## Deadlock — o ciclo de espera (visual)
+
+<svg viewBox="0 0 460 260" role="img" style="width:100%;max-width:440px;display:block;margin:18px auto 0;font-family:'Segoe UI',Arial,sans-serif">
+ <defs>
+  <marker id="ahb" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L9,3 L0,6 Z" fill="#12437f"/></marker>
+  <marker id="ahr" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L9,3 L0,6 Z" fill="#c0392b"/></marker>
+ </defs>
+ <path d="M140,105 L322,105" stroke="#12437f" stroke-width="2.5" fill="none" marker-end="url(#ahb)"/>
+ <text x="231" y="94" text-anchor="middle" font-size="14" fill="#12437f">T1 espera recurso de T2</text>
+ <path d="M322,158 L140,158" stroke="#c0392b" stroke-width="2.5" fill="none" marker-end="url(#ahr)"/>
+ <text x="231" y="180" text-anchor="middle" font-size="14" fill="#c0392b">T2 espera recurso de T1</text>
+ <circle cx="90" cy="130" r="46" fill="#eef4fb" stroke="#12437f" stroke-width="2"/>
+ <text x="90" y="139" text-anchor="middle" font-size="24" font-weight="700" fill="#0d2b57">T1</text>
+ <circle cx="372" cy="130" r="46" fill="#eef4fb" stroke="#12437f" stroke-width="2"/>
+ <text x="372" y="139" text-anchor="middle" font-size="24" font-weight="700" fill="#0d2b57">T2</text>
+ <text x="231" y="238" text-anchor="middle" font-size="15" font-style="italic" fill="#1f2937">ciclo ⇒ deadlock → o SGBD escolhe vítima + rollback</text>
+</svg>
+
+---
+
 ## NoSQL, CAP e BASE
 
 <div class="cols">
@@ -331,6 +414,25 @@ Prof. M.Sc. Howard Cruz Roatti
 </div>
 
 <div class="dica">💡 Relacional = <strong>ACID</strong> (forte); muitos NoSQL = <strong>BASE</strong> (disponível, consistência eventual).</div>
+
+---
+
+## CAP — escolha 2 dos 3
+
+<svg viewBox="-130 0 1080 400" role="img" style="width:100%;max-width:720px;display:block;margin:6px auto 0;font-family:'Segoe UI',Arial,sans-serif">
+ <polygon points="410,34 90,350 730,350" fill="#eef4fb" stroke="#12437f" stroke-width="2.5"/>
+ <circle cx="410" cy="34" r="7" fill="#0d2b57"/>
+ <circle cx="90" cy="350" r="7" fill="#0d2b57"/>
+ <circle cx="730" cy="350" r="7" fill="#0d2b57"/>
+ <text x="410" y="22" text-anchor="middle" font-size="21" font-weight="700" fill="#0d2b57">C — Consistência</text>
+ <text x="90" y="380" text-anchor="middle" font-size="21" font-weight="700" fill="#0d2b57">A — Disponibilidade</text>
+ <text x="730" y="380" text-anchor="middle" font-size="21" font-weight="700" fill="#0d2b57">P — Tolerância a partição</text>
+ <text x="222" y="200" text-anchor="middle" font-size="22" font-weight="700" fill="#c0392b">CA</text>
+ <text x="598" y="200" text-anchor="middle" font-size="22" font-weight="700" fill="#12437f">CP</text>
+ <text x="410" y="336" text-anchor="middle" font-size="22" font-weight="700" fill="#12437f">AP</text>
+ <text x="410" y="250" text-anchor="middle" font-size="16" font-style="italic" fill="#1f2937">Sob partição (P): escolha CP ou AP.</text>
+ <text x="410" y="274" text-anchor="middle" font-size="16" font-style="italic" fill="#1f2937">CA só quando não há partição.</text>
+</svg>
 
 ---
 
