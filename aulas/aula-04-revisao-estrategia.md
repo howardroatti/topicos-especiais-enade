@@ -137,6 +137,264 @@ Prof. M.Sc. Howard Cruz Roatti
 
 <!-- _class: secao -->
 
+# 🗄️ Banco de Dados
+### Frente 1 — revisão essencial
+
+---
+
+## BD — modelo relacional e normalização
+
+<div class="cols">
+
+<div>
+
+**Chaves**
+- **Superchave** identifica; **candidata** é mínima; **primária (PK)** é a escolhida; **estrangeira (FK)** aponta para a PK de outra tabela.
+- **Integridade:** de entidade (PK única/não nula) · referencial (FK existe ou é nula) · de domínio (tipo/valor).
+
+</div>
+
+<div>
+
+**Normalização (pela dependência)**
+- **1FN:** valores **atômicos** (sem grupos repetidos).
+- **2FN:** 1FN + sem **dependência parcial** da chave composta.
+- **3FN:** 2FN + sem **dependência transitiva** (não-chave dependendo de não-chave).
+
+</div>
+
+</div>
+
+<div class="dica">💡 Bizu: <strong>2FN</strong> mata a dependência <strong>parcial</strong>; <strong>3FN</strong> mata a <strong>transitiva</strong>. BCNF: todo determinante é chave candidata.</div>
+
+---
+
+## BD — SQL, transações e pegadinhas
+
+<div class="cols">
+
+<div>
+
+**SQL**
+- `WHERE` filtra **linhas antes** do `GROUP BY`; `HAVING` filtra **grupos depois** da agregação.
+- **JOINs:** `INNER` (só o que casa) · `LEFT` (tudo da esquerda) · `FULL` (ambos, com NULLs).
+
+**NoSQL & CAP**
+- Tipos: chave-valor, documento, coluna, grafo. Sob **partição**, escolhe **C ou A**.
+
+</div>
+
+<div>
+
+**Transações — ACID**
+- **A**tomicidade · **C**onsistência · **I**solamento · **D**urabilidade.
+- Anomalias: *dirty read*, *non-repeatable read*, *phantom* → **níveis de isolamento**.
+- **2PL** evita conflito mas pode dar **deadlock**; **WAL** (log antes do dado) garante recuperação.
+
+</div>
+
+</div>
+
+<div class="aviso">⚠️ Pegadinha da FK: <code>CASCADE</code> apaga os filhos · <code>RESTRICT/NO ACTION</code> bloqueia · <code>SET NULL</code> deixa órfão.</div>
+
+---
+
+<!-- _class: secao -->
+
+# 📊 Análise de Dados
+### Frente 2 — revisão essencial
+
+---
+
+## Análise — estatística e aprendizado
+
+<div class="cols">
+
+<div>
+
+**Descritiva**
+- **Média** sofre com **outliers**; **mediana** resiste → distribuição assimétrica pede **mediana**.
+- **Desvio padrão** = dispersão em torno da média.
+
+**Tipos de aprendizado**
+- **Supervisionado** (rótulo): classificação/regressão.
+- **Não supervisionado**: agrupamento (*clustering*).
+- **Reforço**: aprende por recompensa.
+
+</div>
+
+<div>
+
+**Viés × variância**
+- **Underfitting** = viés alto: erra **treino e teste**.
+- **Overfitting** = variância alta: acerta o treino, **falha no teste**.
+- Corrige com **mais dados, regularização, validação cruzada**.
+
+</div>
+
+</div>
+
+<div class="dica">💡 O <strong>vão</strong> entre acurácia de treino e teste é a assinatura do <strong>overfitting</strong>.</div>
+
+---
+
+## Análise — métricas e armadilhas
+
+<div class="cols">
+
+<div>
+
+**Matriz de confusão**
+- **Precisão** = dos previstos positivos, quantos acertei — VP/(VP+FP).
+- **Revocação (recall)** = dos positivos reais, quantos peguei — VP/(VP+FN).
+- **F1** = média harmônica de precisão e recall.
+
+</div>
+
+<div>
+
+**Pegadinhas clássicas**
+- **Acurácia engana** em classes **desbalanceadas** (99% prevendo "não-fraude") → olhe precisão/recall/F1.
+- **Correlação ≠ causalidade** (variável de confusão).
+- **Data leakage**: `fit` **só no treino**; no teste, só `transform`.
+
+</div>
+
+</div>
+
+<div class="aviso">⚠️ Normalizar treino+teste juntos = vazamento → métricas infladas que somem em produção.</div>
+
+---
+
+<!-- _class: secao -->
+
+# 🏢 SIO
+### Frente 3 — revisão essencial
+
+---
+
+## SIO — dado, informação e a pirâmide
+
+- **Dado** (bruto) → **Informação** (contextualizada) → **Conhecimento** (aplicável à decisão).
+
+<div class="cols">
+
+<div>
+
+**Níveis (pirâmide de decisão)**
+- **SPT/TPS** — operacional: registra **transações** (alto volume, missão crítica).
+- **SIG/MIS** — tático: **relatórios** de rotina.
+
+</div>
+
+<div>
+
+- **SAD/DSS** — decisão: análise **ad hoc**, cenários "e se".
+- **SAE/EIS** — estratégico: painéis da **alta direção** (não estruturado).
+
+</div>
+
+</div>
+
+<div class="dica">💡 "Registrar venda" = SPT · "relatório mensal" = SIG · "simular cenário" = SAD · "painel do CEO" = EIS.</div>
+
+---
+
+## SIO — sistemas integrados e BI
+
+<div class="cols">
+
+<div>
+
+**Integrados**
+- **ERP** integra processos internos; **CRM** foca no **cliente**; **SCM** na **cadeia de suprimentos**; **SGC** no conhecimento.
+
+**Transacional × analítico**
+- **OLTP** (dia a dia) × **OLAP** (multidimensional, análise).
+
+</div>
+
+<div>
+
+**BI & dados**
+- **Data Warehouse** = base histórica integrada para **BI**.
+- **Data Mining** descobre **padrões ocultos**.
+- **Big Data** = **5 Vs** (volume, velocidade, variedade, veracidade, valor).
+
+</div>
+
+</div>
+
+<div class="aviso">⚠️ <strong>BI</strong> analisa o passado p/ decidir · <strong>Data Mining</strong> garimpa padrões · <strong>Big Data</strong> é a escala/variedade.</div>
+
+---
+
+<!-- _class: secao -->
+
+# 🌐 Sistemas Distribuídos
+### Frente 4 — revisão essencial
+
+---
+
+## SD — conceitos e transparências
+
+<div class="cols">
+
+<div>
+
+- **Definição:** máquinas independentes que cooperam pela rede e parecem **um sistema único**.
+- **Transparências:** acesso, localização, replicação, concorrência, **falha**.
+- **Falha parcial:** parte cai e o resto segue — a ausência de resposta é **ambígua** (caiu? lento? perdeu?).
+
+</div>
+
+<div>
+
+**Arquiteturas**
+- **Cliente-servidor:** simples, mas **ponto único de falha**.
+- **P2P:** sem servidor central, porém exige **coordenação**.
+
+**Escalabilidade**
+- **Vertical** = mais recurso na mesma máquina (limite físico).
+- **Horizontal** = mais máquinas (elástica, preferida na nuvem).
+
+</div>
+
+</div>
+
+---
+
+## SD — nuvem e CAP
+
+<div class="cols">
+
+<div>
+
+**Modelos de serviço**
+- **IaaS** (infra: VM, rede) · **PaaS** (plataforma de desenvolvimento) · **SaaS** (software pronto, ex.: e-mail web).
+- **Implantação:** pública · privada · **híbrida** · comunitária.
+
+</div>
+
+<div>
+
+**Cluster × Grid × Cloud**
+- **Cluster:** nós próximos, um objetivo.
+- **Grid:** disperso geograficamente.
+- **Cloud:** sob demanda, elástico, pago pelo uso.
+
+**CAP:** sob **partição (P)**, **CP** recusa p/ manter consistência; **AP** responde com **consistência eventual**.
+
+</div>
+
+</div>
+
+<div class="dica">💡 "Escalar adicionando servidores" = horizontal · "Gmail" = SaaS · "VM na nuvem" = IaaS.</div>
+
+---
+
+<!-- _class: secao -->
+
 # 🔥 Esquenta misto
 ### Uma de cada frente (A–D) — reta final
 
