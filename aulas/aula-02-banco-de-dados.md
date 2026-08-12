@@ -341,6 +341,33 @@ Prof. M.Sc. Howard Cruz Roatti
 
 ---
 
+## Em miúdos 🧑‍🏫 — Transações e isolamento
+
+<div class="dica">Pense numa <strong>transferência bancária</strong> 🏧: tirar R$100 de você <strong>e</strong> creditar no outro — ou os <strong>dois</strong> passos acontecem, ou <strong>nenhum</strong>.</div>
+
+<div class="cols">
+
+<div>
+
+**ACID no dia a dia**
+- 🧩 **Atomicidade:** tudo ou nada — nunca some dinheiro no meio.
+- ✅ **Consistência:** as regras nunca são quebradas (o saldo não fica inválido).
+
+</div>
+
+<div>
+
+- 👥 **Isolamento:** mil pessoas mexendo juntas, cada uma "sente" que está sozinha.
+- 🔒 **Durabilidade:** confirmou = gravado pra sempre, mesmo faltando luz (é o comprovante).
+
+</div>
+
+</div>
+
+<div class="aviso">📄 <strong>Níveis de isolamento</strong> = o quanto uma transação enxerga o <em>rascunho</em> da outra (como ler um texto que alguém ainda está editando). <strong>Mais isolamento → menos surpresa, porém mais lento.</strong></div>
+
+---
+
 ## Concorrência e recuperação
 
 <div class="cols">
@@ -385,6 +412,32 @@ Prof. M.Sc. Howard Cruz Roatti
  <text x="372" y="139" text-anchor="middle" font-size="24" font-weight="700" fill="#0d2b57">T2</text>
  <text x="231" y="238" text-anchor="middle" font-size="15" font-style="italic" fill="#1f2937">ciclo ⇒ deadlock → o SGBD escolhe vítima + rollback</text>
 </svg>
+
+---
+
+## Em miúdos 🧑‍🏫 — Concorrência e recuperação
+
+<div class="cols">
+
+<div>
+
+🚪 **Bloqueio (lock)** = a plaquinha **"ocupado" do banheiro**: enquanto uma transação usa o dado, as outras **esperam**.
+
+🔑 **Deadlock (abraço mortal)** = duas pessoas, cada uma com **uma** chave que a outra precisa. Ninguém larga → o banco escolhe uma **"vítima"**, desfaz o que ela fez e a outra segue.
+
+</div>
+
+<div>
+
+📝 **Recuperação (WAL)** = o garçom **anota o pedido no bloquinho antes de ir à cozinha**. Se cair a energia, o banco lê o "bloquinho" e:
+- **REFAZ** o que já estava confirmado;
+- **DESFAZ** o que estava pela metade.
+
+</div>
+
+</div>
+
+<div class="dica">💡 Por isso, mesmo caindo a luz no meio de tudo, o banco <strong>nunca fica pela metade</strong>.</div>
 
 ---
 
@@ -433,6 +486,41 @@ Prof. M.Sc. Howard Cruz Roatti
  <text x="410" y="250" text-anchor="middle" font-size="16" font-style="italic" fill="#1f2937">Sob partição (P): escolha CP ou AP.</text>
  <text x="410" y="274" text-anchor="middle" font-size="16" font-style="italic" fill="#1f2937">CA só quando não há partição.</text>
 </svg>
+
+---
+
+## Em miúdos 🧑‍🏫 — NoSQL, CAP e BASE
+
+<svg viewBox="0 0 900 200" role="img" style="width:100%;max-width:740px;display:block;margin:4px auto 6px;font-family:'Segoe UI',Arial,sans-serif">
+ <rect x="40" y="60" width="230" height="80" rx="12" fill="#eef4fb" stroke="#12437f" stroke-width="2"/>
+ <text x="155" y="106" text-anchor="middle" font-size="22" font-weight="700" fill="#0d2b57">FILIAL A</text>
+ <rect x="630" y="60" width="230" height="80" rx="12" fill="#eef4fb" stroke="#12437f" stroke-width="2"/>
+ <text x="745" y="106" text-anchor="middle" font-size="22" font-weight="700" fill="#0d2b57">FILIAL B</text>
+ <line x1="270" y1="100" x2="412" y2="100" stroke="#94a3b8" stroke-width="3" stroke-dasharray="9 6"/>
+ <line x1="488" y1="100" x2="630" y2="100" stroke="#94a3b8" stroke-width="3" stroke-dasharray="9 6"/>
+ <path d="M438,86 L462,114 M462,86 L438,114" stroke="#c0392b" stroke-width="3.5"/>
+ <text x="450" y="152" text-anchor="middle" font-size="15" fill="#c0392b">rede caiu (partição)</text>
+</svg>
+
+<div class="cols">
+
+<div>
+
+🏬 **CAP** = duas **filiais** que perdem contato:
+- **CP:** "**não vendo** sem confirmar" — nunca erra, mas **fica indisponível**.
+- **AP:** "**vendo e acerto depois**" — nunca para, mas por um tempo os números **divergem**.
+
+</div>
+
+<div>
+
+💬 **BASE** = um **grupo de WhatsApp**: nem todos recebem no mesmo instante, mas em pouco tempo **todos veem a mesma coisa** (consistência eventual).
+
+</div>
+
+</div>
+
+<div class="aviso">👉 Regra de bolso: <strong>dinheiro / estoque crítico → ACID</strong> · <strong>feed, curtidas, carrinho que não pode cair → BASE</strong>.</div>
 
 ---
 
