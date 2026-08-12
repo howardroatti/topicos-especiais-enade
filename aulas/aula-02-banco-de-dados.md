@@ -50,45 +50,287 @@ Prof. M.Sc. Howard Cruz Roatti
 
 ---
 
-## Arquitetura & Modelo Relacional
+## Arquitetura ANSI-SPARC (3 níveis)
 
-- **ANSI-SPARC (3 níveis):** externo (views) · conceitual (esquema lógico) · interno (físico).
-  - **Independência física** = mudar armazenamento/índices sem afetar aplicações.
-  - **Independência lógica** = mudar o esquema conceitual sem afetar as views.
-- **Modelo relacional (Codd):** dados em **relações (tabelas)**; **chave primária** (única, não-nula) e **chave estrangeira** (integridade referencial).
-- **Álgebra relacional:** **σ** (seleção = filtra linhas) · **π** (projeção = escolhe colunas) · **⋈** (junção) · ∪, −, ×, ÷.
+<div class="cols">
 
----
+<div>
 
-## Modelagem & Normalização
+- **Externo (views):** o que **cada usuário/app** enxerga — recortes dos dados.
+- **Conceitual (lógico):** o **esquema global** — tabelas, colunas, chaves, relacionamentos, regras.
+- **Interno (físico):** como está **gravado** — arquivos, páginas, **índices**, ordenação.
 
-- **MER:** entidades, atributos, relacionamentos, **cardinalidade**; **generalização/especialização** (total×parcial, disjunta×sobreposta); **entidade associativa** para **N:N**.
-- **Normalização** (remove redundância e anomalias):
-  - **1FN** — atributos **atômicos** (sem multivalorado/repetição).
-  - **2FN** — 1FN **+ sem dependência parcial** (não-chave dependendo de **parte** de chave composta).
-  - **3FN** — 2FN **+ sem dependência transitiva** (não-chave → não-chave).
+</div>
 
-<div class="dica">💡 Dependência <strong>parcial</strong> → 2FN; dependência <strong>transitiva</strong> → 3FN.</div>
+<div>
 
----
+**Independência de dados**
+- **Física:** mudar índices/armazenamento **sem** mexer no conceitual nem nas apps.
+- **Lógica:** mudar o **conceitual** (ex.: nova coluna) sem quebrar as **views** — mais difícil de garantir.
 
-## SQL essencial
+</div>
 
-- **DDL** (`CREATE/ALTER/DROP`) · **DML** (`INSERT/UPDATE/DELETE`) · **DQL** (`SELECT`).
-- **`WHERE` × `HAVING`:** `WHERE` filtra **linhas antes** de agrupar (sem agregação); `HAVING` filtra **grupos depois** do `GROUP BY` (com `SUM`, `COUNT`…).
-- **`JOIN`** combina tabelas pelas chaves; **`GROUP BY`** agrega por grupo.
-- **Índices** aceleram leitura **seletiva** (poucas linhas), mas oneram escrita/espaço.
-- **View** = consulta nomeada (tabela virtual); **integridade referencial** via FK (`ON DELETE CASCADE/RESTRICT`).
+</div>
+
+<div class="dica">💡 ENADE: "reorganizou físico/índices sem afetar apps" = independência <strong>física</strong>.</div>
 
 ---
 
-## Transações & NoSQL
+## Modelo Relacional (Codd)
 
-- **ACID:** Atomicidade · Consistência · Isolamento · Durabilidade.
-- **Anomalias de isolamento:** *dirty read* (lê não-confirmado) · *non-repeatable* (relê e muda) · *phantom* (novas linhas) · *lost update*.
-- **Concorrência:** **2PL** garante serialização mas **não evita deadlock** (espera circular → vítima + rollback).
-- **Recuperação (WAL):** **REDO** nas confirmadas, **UNDO** nas não-confirmadas; **checkpoint**.
-- **NoSQL:** chave-valor, documento, coluna, grafo; **Teorema CAP** (sob partição, escolha C **ou** A) e **BASE** (consistência eventual).
+<div class="cols">
+
+<div>
+
+- Dados em **relações (tabelas)**: linha = **tupla**, coluna = **atributo**, valores válidos = **domínio**.
+- **Chaves:** *superchave* (identifica) ⊇ *candidata* (mínima) → uma vira **primária (PK)**, as outras **alternativas**; **estrangeira (FK)** referencia a PK de outra.
+
+</div>
+
+<div>
+
+**As 3 integridades**
+- **Entidade:** PK **não nula** e única.
+- **Referencial:** FK **existe** na tabela referenciada **ou** é nula.
+- **Domínio:** valor dentro do tipo/regra da coluna.
+
+</div>
+
+</div>
+
+<div class="aviso">⚠️ Violar integridade referencial = FK apontando para uma linha que não existe.</div>
+
+---
+
+## Álgebra relacional (a base do SELECT)
+
+<div class="cols">
+
+<div>
+
+- **σ** seleção → **filtra linhas** (condição).
+- **π** projeção → **escolhe colunas** (elimina duplicatas).
+- **⋈** junção → combina tabelas pela condição/chave.
+- **×** produto cartesiano → **todas** as combinações.
+
+</div>
+
+<div>
+
+- **∪** união · **∩** interseção · **−** diferença (exigem tabelas **compatíveis**).
+- **÷** divisão → ideia de "**para todos**" (ex.: quem cursou **todas** as disciplinas).
+
+</div>
+
+</div>
+
+<div class="dica">💡 Ordem típica: junta (⋈) → filtra (σ) → projeta (π). <strong>σ = linhas</strong>, <strong>π = colunas</strong>.</div>
+
+---
+
+## MER e mapeamento para tabelas
+
+<div class="cols">
+
+<div>
+
+- **Atributos:** simples, **composto**, **multivalorado**, **derivado**.
+- **Relacionamento + cardinalidade** (1:1, 1:N, N:N).
+- **Generalização/especialização:** total×parcial, **disjunta×sobreposta**.
+- **Entidade associativa** resolve **N:N**.
+
+</div>
+
+<div>
+
+**Regras MER → relacional**
+- **1:N:** a chave do lado **1** vira **FK** no lado **N**.
+- **N:N:** cria **tabela associativa** com as duas FKs (**PK composta**).
+- **1:1:** FK no lado de **participação total**.
+
+</div>
+
+</div>
+
+<div class="dica">💡 A "tabela associativa" do N:N é exatamente o que cai na modelagem da C1.</div>
+
+---
+
+## Normalização — dependências funcionais
+
+- **DF `X → Y`:** o valor de `X` **determina** `Y` (ex.: `CPF → Nome`); `X` é o **determinante**.
+
+<div class="cols">
+
+<div>
+
+- **Parcial:** não-chave depende de **parte** de chave composta.
+- **Transitiva:** não-chave depende de **outro não-chave**.
+- **1FN:** atributos **atômicos**.
+
+</div>
+
+<div>
+
+- **2FN:** 1FN + **sem dependência parcial**.
+- **3FN:** 2FN + **sem dependência transitiva**.
+- **BCNF:** todo **determinante** é chave candidata.
+
+</div>
+
+</div>
+
+<div class="dica">💡 <strong>Parcial → 2FN</strong> · <strong>Transitiva → 3FN</strong>.</div>
+
+---
+
+## Normalização — exemplo passo a passo
+
+**Desnormalizada:** `Matricula(Aluno, Disciplina, Professor, Depto_Prof)` — chave `(Aluno, Disciplina)`; regras `Disciplina → Professor` e `Professor → Depto_Prof`.
+
+<div class="cols">
+
+<div>
+
+- **Parcial:** `Professor` depende só de `Disciplina` (parte da chave) → fere a **2FN**.
+- **Transitiva:** `Depto_Prof` depende de `Professor` (não-chave) → fere a **3FN**.
+
+</div>
+
+<div>
+
+**Resultado em 3FN**
+- `Matricula(Aluno, Disciplina)`
+- `Turma(Disciplina, Professor)`
+- `Professor_Info(Professor, Depto_Prof)`
+
+</div>
+
+</div>
+
+<div class="aviso">⚠️ Sem normalizar, o depto se repete em toda matrícula → anomalias de inserção, atualização e exclusão.</div>
+
+---
+
+## SQL — o que cai e a ordem lógica
+
+<div class="cols">
+
+<div>
+
+- **DDL** `CREATE/ALTER/DROP` · **DML** `INSERT/UPDATE/DELETE` · **DQL** `SELECT`.
+- **Ordem lógica:** `FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY`.
+- **`WHERE`** filtra **linhas** (antes de agrupar); **`HAVING`** filtra **grupos** (aceita `SUM/COUNT`).
+
+</div>
+
+<div>
+
+**JOINs**
+- **INNER:** só o que **casa** nos dois lados.
+- **LEFT:** **tudo** da esquerda (+ NULLs à direita).
+- **FULL:** tudo dos **dois** lados.
+
+</div>
+
+</div>
+
+<div class="dica">💡 "Total do grupo passa de X" = `GROUP BY` + `HAVING` — nunca `WHERE SUM(...)`.</div>
+
+---
+
+## SQL — índices, views e FK
+
+<div class="cols">
+
+<div>
+
+- **Índice:** acelera busca **seletiva** (poucas linhas). Em coluna de **baixa seletividade** (ex.: booleana que traz metade), o otimizador prefere **varredura** — o índice só onera escrita/espaço.
+- **View:** consulta nomeada (tabela virtual) — abstrai e protege o esquema.
+
+</div>
+
+<div>
+
+**FK — ações ao excluir o pai**
+- `CASCADE`: apaga os **filhos** junto.
+- `RESTRICT/NO ACTION`: **bloqueia** a exclusão.
+- `SET NULL`: deixa a FK **órfã** (nula).
+
+</div>
+
+</div>
+
+---
+
+## Transações — ACID e níveis de isolamento
+
+- **ACID:** **A**tomicidade · **C**onsistência · **I**solamento · **D**urabilidade.
+
+| Nível de isolamento | Dirty read | Non-repeatable | Phantom |
+|---|:---:|:---:|:---:|
+| READ UNCOMMITTED | pode | pode | pode |
+| READ COMMITTED | **não** | pode | pode |
+| REPEATABLE READ | **não** | **não** | pode |
+| SERIALIZABLE | **não** | **não** | **não** |
+
+<div class="dica">💡 Mais isolamento → menos anomalia, porém <strong>menos concorrência</strong> (mais bloqueio).</div>
+
+---
+
+## Concorrência e recuperação
+
+<div class="cols">
+
+<div>
+
+**2PL (bloqueio em 2 fases)**
+- **Expansão** (só adquire locks) → **encolhimento** (só libera).
+- Garante **serialização**, mas **não evita deadlock**.
+- **Deadlock:** espera circular → o SGBD **detecta**, escolhe **vítima** e faz **rollback**. Prevenção por timestamp: *wait-die* / *wound-wait*.
+
+</div>
+
+<div>
+
+**Recuperação (WAL)**
+- Grava o **log antes** do dado.
+- Confirmadas → **REDO** (durabilidade).
+- Não-confirmadas → **UNDO** (atomicidade).
+- **Checkpoint** limita o retrocesso do REDO.
+
+</div>
+
+</div>
+
+---
+
+## NoSQL, CAP e BASE
+
+<div class="cols">
+
+<div>
+
+**4 famílias (com uso típico)**
+- **Chave-valor:** cache, sessão.
+- **Documento:** JSON, catálogo.
+- **Coluna:** analítico, escrita massiva.
+- **Grafo:** relações, redes sociais.
+
+</div>
+
+<div>
+
+**CAP** — sob **partição**, escolha **uma**
+- **CP:** consistência, **recusa** em partição.
+- **AP:** disponibilidade, **consistência eventual**.
+- **CA:** só sem partição (irreal em rede distribuída).
+
+</div>
+
+</div>
+
+<div class="dica">💡 Relacional = <strong>ACID</strong> (forte); muitos NoSQL = <strong>BASE</strong> (disponível, consistência eventual).</div>
 
 ---
 
