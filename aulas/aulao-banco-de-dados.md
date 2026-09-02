@@ -292,7 +292,6 @@ ORDER BY total DESC;                    -- 6º: ordena o resultado
 <!-- _class: secao -->
 
 # Agora vocês 🤝
-### Em grupos — 8 minutos
 
 ---
 
