@@ -295,7 +295,7 @@ ORDER BY total DESC;                    -- 6º: ordena o resultado
 
 ---
 
-## Desafios — em grupos
+## Desafios
 
 <div class="cols">
 <div>
