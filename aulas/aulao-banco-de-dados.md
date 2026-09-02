@@ -366,40 +366,84 @@ WHERE v.partido = p.numero GROUP BY p.nome, v.votos;
 
 <!-- _class: secao -->
 
-# Bloco 2 · revisão rápida
-### Junção e modelagem — como conjuntos
+# Bloco 2 · Junção
+### Combinar tabelas — pensar em conjuntos
 
 ---
 
-## Junção é operação de conjunto
+## Junção como conjunto
+
+Combinar linhas de **duas tabelas** pela condição de **casamento** (`ON`):
 
 <div class="cols">
 <div>
 
-- **INNER** — só a **interseção**
-- **LEFT** — tudo da **esquerda** + interseção
-- **RIGHT** — tudo da **direita** + interseção
-
-Para "**tudo de A e o que casa de B**": `A LEFT JOIN B`.
+`CLIENTE`
+| id | nome |
+|--|--|
+| 1 | Ana |
+| 2 | Bruno |
+| 3 | Caio |
 
 </div>
 <div>
 
-```sql
-SELECT *
-FROM Pedido p
-LEFT JOIN Cliente c
-  ON p.id_cliente = c.id;
-```
+`PEDIDO`
+| id | id_cliente | valor |
+|--|--|--|
+| 10 | 1 | 150 |
+| 11 | 1 | 80 |
+| 12 | 2 | 200 |
 
 </div>
 </div>
 
-<div class="dica">💡 Idioma útil: <code>A LEFT JOIN B ... WHERE b.id IS NULL</code> = "o que existe em A e <strong>não</strong> em B".</div>
+<div class="dica">💡 <strong>Caio não pediu nada.</strong> <code>INNER JOIN</code> = só quem <strong>casa</strong> (3 linhas; Caio fica de fora). <code>CLIENTE LEFT JOIN PEDIDO</code> = <strong>todos os clientes</strong> + o que casar (4 linhas; Caio com pedido <code>NULL</code>). <code>RIGHT</code> é o <code>LEFT</code> ao contrário.</div>
 
 ---
 
-## A ponte: cardinalidade vira chave estrangeira
+## Agora vocês — junção 🤝
+
+Com as tabelas `CLIENTE` e `PEDIDO` acima:
+
+1. **Todos os clientes** e seus pedidos — **inclusive quem não pediu**.
+2. Só os clientes que **nunca pediram**.
+3. **Quanto cada cliente gastou** no total *(inclusive quem gastou 0)*.
+
+<div class="dica">💡 "aparecer mesmo sem casar" → <code>LEFT JOIN</code>. "não casou" → <code>... WHERE p.id IS NULL</code>.</div>
+
+---
+
+## Junção — gabarito
+
+```sql
+-- 1) todos os clientes + pedidos (Caio aparece com NULL)
+SELECT c.nome, p.id, p.valor
+FROM CLIENTE c LEFT JOIN PEDIDO p ON p.id_cliente = c.id;
+
+-- 2) clientes que nunca pediram → só Caio
+SELECT c.nome
+FROM CLIENTE c LEFT JOIN PEDIDO p ON p.id_cliente = c.id
+WHERE p.id IS NULL;
+
+-- 3) total por cliente (junção + agrupamento!)
+SELECT c.nome, COALESCE(SUM(p.valor), 0) AS total
+FROM CLIENTE c LEFT JOIN PEDIDO p ON p.id_cliente = c.id
+GROUP BY c.nome;
+```
+
+<div class="dica">💡 O item 3 <strong>junta os dois temas de hoje</strong>: junção + agregação. É assim que cai de verdade.</div>
+
+---
+
+<!-- _class: secao -->
+
+# Bloco 3 · Modelagem
+### Da cardinalidade à chave estrangeira
+
+---
+
+## Cardinalidade vira chave estrangeira
 
 `(mín, máx)`: o **primeiro** é o mínimo, o **segundo** o máximo.
 
@@ -409,6 +453,28 @@ LEFT JOIN Cliente c
 - No **mínimo 0**, a FK **aceita nulo**; no mínimo 1, a FK é **NOT NULL**.
 
 <div class="aviso">⚠️ Pegadinha clássica: ler o mínimo <strong>0</strong> de <code>(0,1)</code> como se fosse obrigatório. "No máximo uma" <strong>não</strong> é "exatamente uma".</div>
+
+---
+
+## Agora vocês — modelagem 🤝
+
+As mesmas tabelas de antes, agora pelo **modelo**:
+
+> "Um **PEDIDO** tem **exatamente um** cliente; um **CLIENTE** tem de **0 a N** pedidos."
+
+1. Escreva a cardinalidade `(mín, máx)` de **cada lado**.
+2. Em **qual tabela** entra a **FK**?
+3. Essa FK **aceita nulo**?
+
+---
+
+## Modelagem — gabarito
+
+1. **PEDIDO (1,1)** · **CLIENTE (0,N)** → é um **1:N**.
+2. A FK vai no lado **N**: `PEDIDO.id_cliente`.
+3. **Não** — mínimo 1 (todo pedido tem cliente) → **NOT NULL**.
+
+<div class="dica">💡 É a <strong>mesma</strong> `CLIENTE`/`PEDIDO` do exercício de junção: <strong>modelagem e SQL são o mesmo problema</strong>, visto de dois ângulos.</div>
 
 ---
 
