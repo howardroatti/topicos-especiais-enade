@@ -25,7 +25,7 @@ Você já escreve `SELECT`, `WHERE` e `JOIN`. Aí chega esta pergunta simples:
 - A consulta **linha a linha** não responde: ela devolve **as vendas**, não **o total por loja**.
 - Falta uma ferramenta para **resumir muitos registros em poucos**.
 
-<div class="aviso">🎯 Hoje a gente monta essa ferramenta do zero: <code>GROUP BY</code>, funções de agregação, <code>HAVING</code> e <code>ORDER BY</code>. No fim, você resolve uma questão de ENADE sem esforço.</div>
+<div class="aviso">🎯 Hoje a gente monta essa ferramenta do zero: <code>GROUP BY</code>, funções de agregação, <code>HAVING</code> e <code>ORDER BY</code>.</div>
 
 ---
 
