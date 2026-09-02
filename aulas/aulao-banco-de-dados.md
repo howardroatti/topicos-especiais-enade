@@ -184,7 +184,7 @@ GROUP BY time, jogador;
 </div>
 </div>
 
-<div class="dica">🖐️ <strong>1 ou 2?</strong> Antes de decidir: <strong>o que é "um balde" aqui?</strong> Voto de mão — e só então viramos o slide.</div>
+<div class="dica">🖐️ <strong>1 ou 2?</strong> Antes de decidir: <strong>o que é "um balde" aqui?</strong></div>
 
 ---
 
@@ -250,7 +250,7 @@ GROUP BY loja
 HAVING SUM(valor) > 100;      -- só Norte (150) e Sul (280); Leste (30) cai
 ```
 
-<div class="dica">💡 Regra prática: condição sobre <strong>coluna</strong> → <code>WHERE</code>; condição sobre <strong>resultado de agregação</strong> (<code>SUM</code>, <code>COUNT</code>…) → <code>HAVING</code>.</div>
+<div class="dica">💡 Regra prática: condição sobre <strong>coluna</strong> → <code>WHERE</code>;<br>condição sobre <strong>resultado de agregação</strong> (<code>SUM</code>, <code>COUNT</code>…) → <code>HAVING</code>.</div>
 
 ---
 
@@ -296,15 +296,34 @@ ORDER BY total DESC;                    -- 6º: ordena o resultado
 
 ---
 
-## Desafios (mesma tabela `VENDAS`)
+## Desafios — em grupos
 
-Escrevam a consulta para cada pergunta:
+<div class="cols">
+<div>
 
-1. **Quantas vendas** cada vendedor fez? *(dica: `COUNT`)*
-2. **Faturamento por loja**, só as lojas que passaram de **R$ 100**.
-3. A **loja campeã** de faturamento *(uma linha só)*.
+Tabela `VENDAS`:
+<table style="font-size:15px">
+<tr><th>loja</th><th>vendedor</th><th>valor</th></tr>
+<tr style="background:#e7effa"><td>Norte</td><td>Ana</td><td>100</td></tr>
+<tr style="background:#e7effa"><td>Norte</td><td>Bia</td><td>50</td></tr>
+<tr style="background:#fdeccf"><td>Sul</td><td>Caio</td><td>200</td></tr>
+<tr style="background:#fdeccf"><td>Sul</td><td>Duda</td><td>80</td></tr>
+<tr style="background:#d7f4df"><td>Leste</td><td>Edu</td><td>30</td></tr>
+</table>
 
-<div class="dica">💡 Comecem sempre pela pergunta "<strong>o que é um grupo aqui?</strong>" — é o que vai no <code>GROUP BY</code>.</div>
+</div>
+<div>
+
+Escrevam a consulta:
+
+1. **Quantas vendas** cada vendedor fez? *(`COUNT`)*
+2. **Faturamento por loja**, só as que passaram de **100**.
+3. A **loja campeã** *(uma linha só)*.
+
+</div>
+</div>
+
+<div class="dica">💡 Comecem pela pergunta "<strong>o que é um grupo aqui?</strong>" — é o que vai no <code>GROUP BY</code>.</div>
 
 ---
 
@@ -389,8 +408,6 @@ LEFT JOIN Cliente c
 
 <div class="aviso">⚠️ Pegadinha clássica: ler o mínimo <strong>0</strong> de <code>(0,1)</code> como se fosse obrigatório. "No máximo uma" <strong>não</strong> é "exatamente uma".</div>
 
-<div class="dica">🔗 Aprofundar: decks de BD <strong>Modelagem Conceitual (ER)</strong> e <strong>Lógica (→ tabelas)</strong>, com os exercícios integradores.</div>
-
 ---
 
 ## Fecho — leve isto na prova
@@ -402,16 +419,16 @@ LEFT JOIN Cliente c
 <div class="cols">
 <div>
 
-- **Normalização** (muito recorrente!)
-- **Transações e ACID**
-- **Concorrência / isolamento**
+- [**Normalização**](https://howardroatti.github.io/banco-de-dados-faesa/unidades/04-modelagem/normalizacao.html) (muito recorrente!)
+- [**Transações e ACID**](https://howardroatti.github.io/banco-de-dados-faesa/unidades/06-transacoes/transacoes.html)
+- [**Concorrência / isolamento**](https://howardroatti.github.io/banco-de-dados-faesa/unidades/06-transacoes/concorrencia-recuperacao.html)
 
 </div>
 <div>
 
-- **Índices** (Views, SQL e Indexação)
-- **Álgebra relacional**
-- **NoSQL e CAP**
+- [**Índices**](https://howardroatti.github.io/banco-de-dados-faesa/unidades/03-relacional/views-sql-indexacao.html) (Views, SQL e Indexação)
+- [**Álgebra relacional**](https://howardroatti.github.io/banco-de-dados-faesa/unidades/03-relacional/algebra-relacional.html)
+- [**NoSQL e CAP**](https://howardroatti.github.io/banco-de-dados-faesa/unidades/07-nosql/nosql-conceitos.html)
 
 </div>
 </div>
