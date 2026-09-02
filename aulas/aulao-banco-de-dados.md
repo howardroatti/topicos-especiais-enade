@@ -398,41 +398,94 @@ Combinar linhas de **duas tabelas** pela condição de **casamento** (`ON`):
 </div>
 </div>
 
-<div class="dica">💡 <strong>Caio não pediu nada.</strong> <code>INNER JOIN</code> = só quem <strong>casa</strong> (3 linhas; Caio fica de fora). <code>CLIENTE LEFT JOIN PEDIDO</code> = <strong>todos os clientes</strong> + o que casar (4 linhas; Caio com pedido <code>NULL</code>). <code>RIGHT</code> é o <code>LEFT</code> ao contrário.</div>
+<div class="dica">💡 <strong>Caio não pediu nada.</strong> É a diferença entre os dois tipos — vamos ver a saída de cada um.</div>
+
+---
+
+## Junção — as duas saídas
+
+<div class="cols">
+<div>
+
+`INNER JOIN` — só quem **casa**
+<table style="font-size:15px">
+<tr><th>nome</th><th>pedido</th><th>valor</th></tr>
+<tr><td>Ana</td><td>10</td><td>150</td></tr>
+<tr><td>Ana</td><td>11</td><td>80</td></tr>
+<tr><td>Bruno</td><td>12</td><td>200</td></tr>
+</table>
+
+Caio <strong>fica de fora</strong>.
+
+</div>
+<div>
+
+`CLIENTE LEFT JOIN PEDIDO`
+<table style="font-size:15px">
+<tr><th>nome</th><th>pedido</th><th>valor</th></tr>
+<tr><td>Ana</td><td>10</td><td>150</td></tr>
+<tr><td>Ana</td><td>11</td><td>80</td></tr>
+<tr><td>Bruno</td><td>12</td><td>200</td></tr>
+<tr style="background:#fdeaea"><td>Caio</td><td>NULL</td><td>NULL</td></tr>
+</table>
+
+</div>
+</div>
+
+<div class="dica">💡 A diferença é <strong>só o Caio</strong>: o <code>LEFT</code> preserva quem <strong>não casou</strong>, preenchendo com <code>NULL</code>. (<code>RIGHT</code> é o mesmo, do outro lado.)</div>
 
 ---
 
 ## Agora vocês — junção 🤝
 
-Com as tabelas `CLIENTE` e `PEDIDO` acima:
+Novo caso — `AUTOR` e `LIVRO`:
 
-1. **Todos os clientes** e seus pedidos — **inclusive quem não pediu**.
-2. Só os clientes que **nunca pediram**.
-3. **Quanto cada cliente gastou** no total *(inclusive quem gastou 0)*.
+<div class="cols">
+<div>
 
-<div class="dica">💡 "aparecer mesmo sem casar" → <code>LEFT JOIN</code>. "não casou" → <code>... WHERE p.id IS NULL</code>.</div>
+`AUTOR`
+| id | nome |
+|--|--|
+| 1 | Machado |
+| 2 | Clarice |
+| 3 | Rui |
+
+</div>
+<div>
+
+`LIVRO`
+| id | id_autor | titulo |
+|--|--|--|
+| 100 | 1 | Dom Casmurro |
+| 101 | 1 | Quincas Borba |
+| 102 | 2 | A Hora da Estrela |
+
+</div>
+</div>
+
+**Escrevam:** 1) todos os autores e seus livros, **inclusive quem não publicou**; 2) autores **sem livro**; 3) **quantos livros** cada autor tem *(inclusive 0)*.
 
 ---
 
 ## Junção — gabarito
 
 ```sql
--- 1) todos os clientes + pedidos (Caio aparece com NULL)
-SELECT c.nome, p.id, p.valor
-FROM CLIENTE c LEFT JOIN PEDIDO p ON p.id_cliente = c.id;
+-- 1) todos os autores + livros (Rui aparece com NULL)
+SELECT a.nome, l.titulo
+FROM AUTOR a LEFT JOIN LIVRO l ON l.id_autor = a.id;
 
--- 2) clientes que nunca pediram → só Caio
-SELECT c.nome
-FROM CLIENTE c LEFT JOIN PEDIDO p ON p.id_cliente = c.id
-WHERE p.id IS NULL;
+-- 2) autores sem livro → só Rui
+SELECT a.nome
+FROM AUTOR a LEFT JOIN LIVRO l ON l.id_autor = a.id
+WHERE l.id IS NULL;
 
--- 3) total por cliente (junção + agrupamento!)
-SELECT c.nome, COALESCE(SUM(p.valor), 0) AS total
-FROM CLIENTE c LEFT JOIN PEDIDO p ON p.id_cliente = c.id
-GROUP BY c.nome;
+-- 3) quantos livros por autor (junção + agrupamento)
+SELECT a.nome, COUNT(l.id) AS qtd
+FROM AUTOR a LEFT JOIN LIVRO l ON l.id_autor = a.id
+GROUP BY a.nome;
 ```
 
-<div class="dica">💡 O item 3 <strong>junta os dois temas de hoje</strong>: junção + agregação. É assim que cai de verdade.</div>
+<div class="dica">💡 No item 3, use <code>COUNT(l.id)</code>, <strong>não</strong> <code>COUNT(*)</code>: a linha do Rui tem <code>l.id = NULL</code>, então <code>COUNT(*)</code> contaria <strong>1</strong> indevidamente. Junção + agregação juntas — é assim que cai.</div>
 
 ---
 
@@ -456,13 +509,25 @@ GROUP BY c.nome;
 
 ---
 
-## Agora vocês — modelagem 🤝
-
-As mesmas tabelas de antes, agora pelo **modelo**:
+## Modelagem — exemplo resolvido
 
 > "Um **PEDIDO** tem **exatamente um** cliente; um **CLIENTE** tem de **0 a N** pedidos."
 
-1. Escreva a cardinalidade `(mín, máx)` de **cada lado**.
+1. Cardinalidade: **PEDIDO (1,1)** · **CLIENTE (0,N)** → é um **1:N**.
+2. A FK vai no lado **N**: `PEDIDO.id_cliente`.
+3. Mínimo **1** (todo pedido tem cliente) → a FK é **NOT NULL**.
+
+<div class="dica">💡 Roteiro: leia as duas cardinalidades → ache o lado <strong>N</strong> (a FK entra lá) → veja o <strong>mínimo</strong> desse lado: <strong>0</strong> aceita nulo, <strong>1</strong> é <code>NOT NULL</code>.</div>
+
+---
+
+## Agora vocês — modelagem 🤝
+
+Novo caso:
+
+> "Cada **LIVRO** tem **no máximo uma** editora `(0,1)`; uma **EDITORA** publica de **0 a N** livros."
+
+1. Cardinalidade `(mín, máx)` de **cada lado**?
 2. Em **qual tabela** entra a **FK**?
 3. Essa FK **aceita nulo**?
 
@@ -470,11 +535,11 @@ As mesmas tabelas de antes, agora pelo **modelo**:
 
 ## Modelagem — gabarito
 
-1. **PEDIDO (1,1)** · **CLIENTE (0,N)** → é um **1:N**.
-2. A FK vai no lado **N**: `PEDIDO.id_cliente`.
-3. **Não** — mínimo 1 (todo pedido tem cliente) → **NOT NULL**.
+1. **LIVRO (0,1)** · **EDITORA (0,N)** → é um **1:N**.
+2. A FK vai no lado **N**: `LIVRO.id_editora`.
+3. **Sim** — mínimo **0** (um livro pode não ter editora) → a FK **aceita NULL**.
 
-<div class="dica">💡 É a <strong>mesma</strong> `CLIENTE`/`PEDIDO` do exercício de junção: <strong>modelagem e SQL são o mesmo problema</strong>, visto de dois ângulos.</div>
+<div class="dica">💡 Compare com o resolvido: lá o mínimo era <strong>1</strong> (FK <code>NOT NULL</code>); aqui é <strong>0</strong> (FK <strong>aceita nulo</strong>). <strong>O mínimo é o que decide.</strong></div>
 
 ---
 
