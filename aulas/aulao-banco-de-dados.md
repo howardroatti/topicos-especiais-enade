@@ -9,271 +9,296 @@ footer: 'Prof. M.Sc. Howard Cruz Roatti · FAESA · Tópicos Especiais II — EN
 <!-- _paginate: false -->
 
 # Aulão de Banco de Dados
-## ENADE — a partir do Simulado 2026-1
+## Agrupar e agregar — pensar em conjuntos
 
 **Tópicos Especiais II** · ENADE · 2026/2
 Prof. M.Sc. Howard Cruz Roatti
 
 ---
 
-## O diagnóstico, em uma frase
+## A pergunta de hoje
 
-Banco de Dados caiu **só em SI e ADS** (3 itens cada) — e os dois estão em velocidades muito diferentes:
+Você já escreve `SELECT`, `WHERE` e `JOIN`. Aí chega esta pergunta simples:
+
+<div class="dica">🧾 "Temos uma tabela com <strong>uma venda por linha</strong>. Quanto <strong>cada loja</strong> faturou?"</div>
+
+- A consulta **linha a linha** não responde: ela devolve **as vendas**, não **o total por loja**.
+- Falta uma ferramenta para **resumir muitos registros em poucos**.
+
+<div class="aviso">🎯 Hoje a gente monta essa ferramenta do zero: <code>GROUP BY</code>, funções de agregação, <code>HAVING</code> e <code>ORDER BY</code>. No fim, você resolve uma questão de ENADE sem esforço.</div>
+
+---
+
+## A virada de chave
 
 <div class="cols">
 <div>
 
-**SI — 83,3%**
-Conceito de pé. Faltam **pontos finos**.
+**Jeito procedural** (de quem programa)
+Percorrer **uma linha de cada vez** e ir somando numa variável.
+`for venda in vendas: total[loja] += venda`
 
 </div>
 <div>
 
-**ADS — 47,1%**
-Um **buraco** claro, concentrado.
+**Jeito do SQL** (declarativo)
+Você **não percorre** nada. Descreve **grupos** e o que quer de **cada grupo**.
+"Para **cada loja**, a **soma** dos valores."
 
 </div>
 </div>
 
-<div class="dica">💡 O eixo do aulão sai limpo dos dados: <strong>o problema não é junção nem subconsulta — é agregação e agrupamento</strong> (<code>GROUP BY</code>, <code>SUM</code>, <code>AVG</code>).</div>
+<div class="dica">💡 A ideia-mãe: a tabela é um <strong>monte de linhas</strong> → você as separa em <strong>baldes</strong> (grupos) → e pede <strong>um número por balde</strong>. Pensar em <strong>conjuntos</strong>, não em laços.</div>
 
 ---
 
-## Abertura — votem no ar 🖐️
+## Nossa tabela de exemplo — `VENDAS`
 
-Banco de eleição: `Candidato(numero, nome)`, `Partido(numero, nome, sigla)`, `Votacao(partido, votos, estado)`. Queremos **o total de votos de cada partido/candidato**. Todas partem da **mesma base** — muda só o destacado:
+<div class="cols">
+<div>
+
+| loja | vendedor | valor |
+|--|--|--|
+| Norte | Ana | 100 |
+| Norte | Bia | 50 |
+| Sul | Caio | 200 |
+| Sul | Duda | 80 |
+| Leste | Edu | 30 |
+
+</div>
+<div>
+
+**Uma venda por linha.**
+Cinco linhas, três lojas.
+
+Vamos responder, passo a passo:
+1. quanto faturou **no total**?
+2. quanto faturou **cada loja**?
+3. e **só** as lojas grandes?
+4. da **maior** para a menor?
+
+</div>
+</div>
+
+---
+
+## Passo 1 — resumir a tabela inteira
+
+Uma **função de agregação** engole **muitas linhas** e devolve **uma**:
 
 ```sql
-SELECT c.nome, p.nome, «AGREGADO»  FROM Partido p, Candidato c, Votacao v
-WHERE c.numero = p.numero AND v.partido = c.numero  «AGRUPAMENTO»;
+SELECT SUM(valor), COUNT(*), AVG(valor) FROM VENDAS;
 ```
 
-| | «AGREGADO» | «AGRUPAMENTO» |
+| SUM(valor) | COUNT(*) | AVG(valor) |
 |--|--|--|
-| **A** | `COUNT(v.votos)` | `GROUP BY c.nome, p.nome` |
-| **B** | `SUM(v.votos)` | `GROUP BY c.nome, p.nome` |
-| **C** | `SUM(v.votos)` | *(sem `GROUP BY`)* |
-| **D** | `SUM(v.votos)` | `GROUP BY c.nome, p.nome, v.votos` |
+| 460 | 5 | 92 |
 
-<div class="aviso">🖐️ <strong>A, B, C ou D?</strong> Guardem a resposta. Voltamos a ela em 3 minutos.</div>
+<div class="dica">💡 Sem <code>GROUP BY</code>, a tabela toda é <strong>um único grupo</strong> → uma linha de resposta. <code>SUM</code> soma, <code>COUNT</code> conta, <code>AVG</code> tira a média, <code>MIN</code>/<code>MAX</code> pegam extremos.</div>
 
 ---
 
-## O contraste que orienta a aula
+## Passo 2 — `GROUP BY`: um resumo por grupo
+
+`GROUP BY loja` separa as linhas em **baldes** e aplica a função em **cada um**:
 
 <div class="cols">
 <div>
 
-**SI · Q14 — subconsulta IN tripla**
-`SELECT ... WHERE idMoto IN (SELECT ... IN (SELECT ...))`
-### 100% de acerto
-Três níveis aninhados **não derrubaram ninguém**.
+**Entram (agrupadas por cor)**
+<table style="font-size:15px">
+<tr><th>loja</th><th>valor</th></tr>
+<tr style="background:#e7effa"><td>Norte</td><td>100</td></tr>
+<tr style="background:#e7effa"><td>Norte</td><td>50</td></tr>
+<tr style="background:#fdeccf"><td>Sul</td><td>200</td></tr>
+<tr style="background:#fdeccf"><td>Sul</td><td>80</td></tr>
+<tr style="background:#d7f4df"><td>Leste</td><td>30</td></tr>
+</table>
 
 </div>
 <div>
 
-**ADS · Q16 — SUM com GROUP BY**
-A consulta de agregação da abertura.
-### 6% de acerto
-**1 acerto em 17.** 12 na mesma errada.
+**Saem** — `GROUP BY loja` + `SUM`
+<table style="font-size:15px">
+<tr><th>loja</th><th>SUM(valor)</th></tr>
+<tr style="background:#e7eeff"><td>Norte</td><td><strong>150</strong></td></tr>
+<tr style="background:#fdeccf"><td>Sul</td><td><strong>280</strong></td></tr>
+<tr style="background:#d7f4df"><td>Leste</td><td><strong>30</strong></td></tr>
+</table>
 
 </div>
 </div>
 
-<div class="dica">💡 Por que o "mais difícil" foi o mais fácil? <strong>Subconsulta é procedural</strong> — resolve de dentro para fora, como código. <strong>Agregação é declarativa</strong> — exige pensar em <strong>conjuntos</strong>. É aí que a intuição de quem programa falha.</div>
+<div class="dica">💡 Cada <strong>cor</strong> vira <strong>uma linha</strong>. Cinco linhas entraram, três saíram — uma por grupo.</div>
 
 ---
 
-## Roteiro de hoje
+## A regra de ouro (ela nasce aqui)
 
-| # | Item | Assunto | Tempo |
-|--|--|--|--|
-| 1 | ADS Q16 | `SUM` com `GROUP BY` | 15 min |
-| 2 | ADS Q17 | `AVG`, `GROUP BY` e `ORDER BY` | 12 min |
-| 3 | SI Q15 | `JOIN` com apelidos e coluna ambígua | 8 min |
-| 4 | ADS Q19 | Modelo ER e chave candidata | 7 min |
-| 5 | SI Q13 | `RIGHT` × `LEFT` × `INNER JOIN` | 6 min |
-| 6 | ADS Q23 | Diagrama de classes e multiplicidade | 3 min |
-
-<div class="dica">💡 Núcleo em <strong>agregação</strong> (segura ADS); junção e modelagem entram como <strong>revisão rápida</strong> (para SI).</div>
-
----
-
-<!-- _class: secao -->
-
-# 1 · ADS Q16
-### `SUM` com `GROUP BY` — vamos rodar as duas
-
----
-
-## Q16 — rode as duas à mão
-
-Seis linhas de `Votacao` e a saída de **cada** consulta:
-
-<div class="cols">
-<div>
-
-**Dados (`Votacao`)**
-| partido | votos |
-|--|--|
-| Alfa | 100 |
-| Alfa | 50 |
-| Alfa | 30 |
-| Beta | 200 |
-| Beta | 20 |
-
-</div>
-<div>
-
-**B — `GROUP BY c.nome, p.nome`** ✅
-| candidato | partido | SUM |
-|--|--|--|
-| Ana | Alfa | **180** |
-| Bruno | Beta | **220** |
-
-**D — `... , v.votos`** ❌
-| candidato | partido | SUM |
-|--|--|--|
-| Ana | Alfa | 100 |
-| Ana | Alfa | 50 |
-| … | … | … |
-
-</div>
-</div>
-
-<div class="aviso">⚠️ Agrupar <strong>também</strong> por <code>v.votos</code> cria <strong>um grupo para cada valor de voto</strong> → a soma vira o próprio valor. A totalização <strong>some</strong>, mas o banco aceita e devolve linhas.</div>
-
----
-
-## Q16 — a regra (só agora) + gabarito **B**
-
-<div class="dica">💡 <strong>Agrupa-se pelo que NÃO está agregado.</strong> As colunas do <code>SELECT</code> que não entram numa função (<code>SUM</code>, <code>AVG</code>…) vão <strong>todas</strong>, e só elas, no <code>GROUP BY</code>.</div>
-
-- **B** ✅ — `SUM(v.votos)` totaliza; `GROUP BY c.nome, p.nome` dá o total por partido/candidato.
-- **D** ❌ (12 alunos) — agrupar por `v.votos` anula a soma (o erro campeão).
-- **A** ❌ — usa `COUNT` (conta linhas, não soma votos).
-- **C** ❌ — `SUM` **sem** `GROUP BY` com colunas não agregadas → consulta inválida.
-
-<div class="aviso">📌 O que o erro revela: quem marca D acha que <code>GROUP BY</code> "lista as colunas do <code>SELECT</code>". Enquanto essa ideia estiver de pé, <strong>toda</strong> totalização sai errada.</div>
-
----
-
-<!-- _class: secao -->
-
-# 2 · ADS Q17
-### `AVG`, `GROUP BY` e `ORDER BY`
-
----
-
-## Q17 — primeiro, em português
-
-Banco bancário: `CLIENTE`, `CONTA`, `HISTORICO_MOVIMENTACAO`. Queremos **o nome de cada cliente e o valor médio movimentado por ele, do maior para o menor**.
-
-<div class="aviso">🗣️ Antes de qualquer SQL: qual a diferença entre <strong>"o valor movimentado"</strong> e <strong>"a média por cliente"</strong>? Quem não enuncia isso não escreve o <code>GROUP BY</code> — por mais sintaxe que decore.</div>
-
-<div class="cols">
-<div>
-
-**Sem agregar** (erro B, 4 alunos)
-| cliente | valor |
-|--|--|
-| Bruno | 50 |
-| Ana | 100 |
-| Bruno | 150 |
-| Ana | 200 |
-
-</div>
-<div>
-
-**`AVG ... GROUP BY cliente`** ✅
-| cliente | média |
-|--|--|
-| Ana | **150** |
-| Bruno | **100** |
-
-</div>
-</div>
-
----
-
-## Q17 — gabarito **A**
+No `SELECT`, **cada coluna** ou está no `GROUP BY`, ou está **dentro de uma função** de agregação.
 
 ```sql
-SELECT CL.NOME, AVG(HM.VAL_MOVIMENTADO)
-FROM CLIENTE CL
-  JOIN CONTA CO ON CL.COD_CLIENTE = CO.COD_CLIENTE
-  JOIN HISTORICO_MOVIMENTACAO HM ON CO.NUM_CONTA = HM.NUM_CONTA
-GROUP BY CL.COD_CLIENTE, CL.NOME
-ORDER BY AVG(HM.VAL_MOVIMENTADO) DESC;   -- ordena pela própria agregação
+SELECT loja, SUM(valor) FROM VENDAS GROUP BY loja;   -- ✅ loja agrupa, valor agrega
 ```
 
-- **A** ✅ — `AVG` + `GROUP BY` por cliente + `ORDER BY AVG(...) DESC`.
-- **B** ❌ — lista os valores **individuais** (sem `AVG`, sem agrupar).
-- **C** ❌ — `AVG` **sem** `GROUP BY`.
-- **D** ❌ — junções erradas (colunas trocadas).
-
-<div class="dica">💡 Sete dos dez erros de ADS foram de agregação — <strong>não</strong> de junção. E o item ainda cobra o passo seguinte: <strong>ordenar pela função de agregação</strong>.</div>
-
----
-
-<!-- _class: secao -->
-
-# 3 · SI Q15
-### `JOIN`, apelidos e coluna ambígua
-
----
-
-## Q15 — o conceito está de pé, faltam os finos
-
-`Peca(CodPeca, NomePeca, ...)` e `Embarque(CodPeca, CodFornecedor, QuantidadeEmbarque)`. Queremos `CodPeca` e `NomePeca` das peças com `QuantidadeEmbarque > 100`.
+**E se eu jogar `valor` no `GROUP BY` também?**
 
 ```sql
--- A (correta)
-SELECT P.CodPeca, P.NomePeca
-FROM Peca P JOIN Embarque E ON P.CodPeca = E.CodPeca
-WHERE E.QuantidadeEmbarque > 100;
+SELECT loja, SUM(valor) FROM VENDAS GROUP BY loja, valor;   -- ⚠️
 ```
 
-<div class="aviso">🗣️ Pergunta que resolve as duas pegadinhas: por que <code>WHERE QuantidadeEmbarque > 100</code> <strong>sem qualificar</strong> às vezes funciona e às vezes não? (Obriga a pensar no <strong>esquema</strong>, não na consulta.)</div>
+<div class="aviso">⚠️ Agora cada <strong>par (loja, valor)</strong> é um grupo → volta a <strong>uma linha por valor</strong>, e a soma vira o próprio valor. A totalização <strong>some</strong> — e o banco aceita numa boa. Por isso a regra: <strong>agrupa-se pelo que NÃO está agregado</strong>.</div>
 
-- **B** ❌ — `FROM Peca Embarque` lê `Embarque` como **apelido** de `Peca`.
-- **C** ❌ — `CodPeca` **sem qualificar** é **ambíguo** (existe nas duas tabelas).
-- **D** ❌ — `Embarque` só existe na subconsulta; referenciá-la no `SELECT` externo é **fora de escopo**.
+---
+
+## Vote no ar 🖐️ — qual totaliza por loja?
+
+```sql
+-- Consulta 1
+SELECT loja, SUM(valor) FROM VENDAS GROUP BY loja;
+-- Consulta 2
+SELECT loja, SUM(valor) FROM VENDAS GROUP BY loja, valor;
+```
+
+<div class="dica">🖐️ <strong>1 ou 2?</strong> Pensem no que vira "um balde". Vamos rodar as duas na tela.</div>
+
+- **Consulta 1** → 3 linhas (Norte 150, Sul 280, Leste 30). ✅
+- **Consulta 2** → 5 linhas, cada valor sozinho. ❌ (o balde virou "loja + valor")
+
+---
+
+## Passo 3 — `WHERE` × `HAVING`
+
+Os dois filtram — mas em **momentos diferentes**:
+
+<div class="cols">
+<div>
+
+**`WHERE`** → filtra **LINHAS**
+*antes* de agrupar.
+`WHERE valor >= 50`
+(descarta a venda de 30 **antes** da soma)
+
+</div>
+<div>
+
+**`HAVING`** → filtra **GRUPOS**
+*depois* de agrupar.
+`HAVING SUM(valor) > 100`
+(descarta a loja cujo **total** ≤ 100)
+
+</div>
+</div>
+
+```sql
+SELECT loja, SUM(valor) FROM VENDAS
+GROUP BY loja
+HAVING SUM(valor) > 100;      -- só Norte (150) e Sul (280); Leste (30) cai
+```
+
+<div class="dica">💡 Regra prática: condição sobre <strong>coluna</strong> → <code>WHERE</code>; condição sobre <strong>resultado de agregação</strong> (<code>SUM</code>, <code>COUNT</code>…) → <code>HAVING</code>.</div>
+
+---
+
+## Passo 4 — `ORDER BY` pela agregação
+
+Dá para ordenar **pelo número que você calculou**:
+
+```sql
+SELECT loja, SUM(valor) AS total FROM VENDAS
+GROUP BY loja
+ORDER BY total DESC;          -- Sul 280, Norte 150, Leste 30
+```
+
+| loja | total |
+|--|--|
+| Sul | 280 |
+| Norte | 150 |
+| Leste | 30 |
+
+<div class="dica">💡 <code>ORDER BY SUM(valor) DESC</code> ou <code>ORDER BY total DESC</code> (pelo apelido) — os dois funcionam.</div>
+
+---
+
+## A consulta inteira — ordem de escrita × de execução
+
+```sql
+SELECT   loja, SUM(valor) AS total     -- 5º: escolhe o que aparece
+FROM     VENDAS                         -- 1º: de onde vêm as linhas
+WHERE    valor >= 50                    -- 2º: filtra LINHAS
+GROUP BY loja                           -- 3º: forma os GRUPOS
+HAVING   SUM(valor) > 100               -- 4º: filtra GRUPOS
+ORDER BY total DESC;                    -- 6º: ordena o resultado
+```
+
+<div class="aviso">📌 Você <strong>escreve</strong> nessa ordem, mas o banco <strong>executa</strong> assim: <code>FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY</code>. É por isso que o <code>HAVING</code> pode usar <code>SUM</code> e o <code>WHERE</code> não.</div>
 
 ---
 
 <!-- _class: secao -->
 
-# 4 · ADS Q19
-### Modelo ER e chave candidata — a ponte para o SQL
+# Agora vocês 🤝
+### Em grupos — 8 minutos
 
 ---
 
-## Q19 — leia a cardinalidade em voz alta
+## Desafios (mesma tabela `VENDAS`)
 
-`pessoa` **possui** `cavalo`: cada pessoa possui **exatamente um** cavalo `(1,1)`; cada cavalo pertence a **no máximo uma** pessoa `(0,1)`.
+Escrevam a consulta para cada pergunta:
 
-<div class="dica">💡 Traduza cada número: o <strong>primeiro é o mínimo</strong>, o <strong>segundo é o máximo</strong>. <code>(0,1)</code> = "de zero a um" → <strong>opcional</strong>.</div>
+1. **Quantas vendas** cada vendedor fez? *(dica: `COUNT`)*
+2. **Faturamento por loja**, só as lojas que passaram de **R$ 100**.
+3. A **loja campeã** de faturamento *(uma linha só)*.
 
-- **C** ✅ — o `rg` identifica unicamente cada pessoa → pode ser **chave candidata**.
-- **D** ❌ (3 alunos) — leram o **mínimo 0** de `(0,1)` como **obrigatório**; confundem "no máximo uma" com "exatamente uma".
-- **A** ❌ — `(1,1)` limita a **um** cavalo por pessoa.
-- **B** ❌ — `raca`/`eBento` são descritivos; a PK de `cavalo` é `codigo`.
+<div class="dica">💡 Comecem sempre pela pergunta "<strong>o que é um grupo aqui?</strong>" — é o que vai no <code>GROUP BY</code>.</div>
 
-<div class="aviso">📌 O que muda no esquema quando o mínimo é <strong>0</strong>? É onde entra a <strong>chave estrangeira que aceita nulo</strong> — modelagem virando SQL.</div>
+---
+
+## Desafios — gabarito
+
+```sql
+-- 1) vendas por vendedor
+SELECT vendedor, COUNT(*) FROM VENDAS GROUP BY vendedor;
+
+-- 2) faturamento por loja, acima de 100
+SELECT loja, SUM(valor) FROM VENDAS
+GROUP BY loja HAVING SUM(valor) > 100;
+
+-- 3) loja campeã
+SELECT loja, SUM(valor) AS total FROM VENDAS
+GROUP BY loja ORDER BY total DESC
+LIMIT 1;                       -- (no Oracle: FETCH FIRST 1 ROW ONLY)
+```
+
+<div class="dica">💡 Reparem: <strong>o que muda</strong> entre eles é só o <code>GROUP BY</code> e o filtro/ordenação — a estrutura é a mesma.</div>
+
+---
+
+## Como isso cai no ENADE
+
+Banco de eleição: `Partido(numero, nome)`, `Votacao(partido, votos, estado)`. Queremos o **total de votos por partido**. Assinale a consulta correta.
+
+```sql
+-- A
+SELECT p.nome, SUM(v.votos) FROM Partido p, Votacao v
+WHERE v.partido = p.numero GROUP BY p.nome;
+-- B
+SELECT p.nome, SUM(v.votos) FROM Partido p, Votacao v
+WHERE v.partido = p.numero GROUP BY p.nome, v.votos;
+```
+
+<div class="dica">💡 É a <strong>mesma ideia</strong> de hoje: <code>SUM</code> totaliza e o <code>GROUP BY</code> leva só as colunas <strong>não agregadas</strong>. Agrupar por <code>v.votos</code> (B) quebraria a soma → a correta é <strong>A</strong>.</div>
 
 ---
 
 <!-- _class: secao -->
 
-# 5 · SI Q13
-### `RIGHT` × `LEFT` × `INNER` — 30 segundos por junção
+# Bloco 2 · revisão rápida
+### Junção e modelagem — como conjuntos
 
 ---
 
-## Q13 — junção é operação de conjunto
-
-Queremos **todas as linhas de Tabela2** e as correspondentes de Tabela1.
+## Junção é operação de conjunto
 
 <div class="cols">
 <div>
@@ -282,56 +307,57 @@ Queremos **todas as linhas de Tabela2** e as correspondentes de Tabela1.
 - **LEFT** — tudo da **esquerda** + interseção
 - **RIGHT** — tudo da **direita** + interseção
 
+Para "**tudo de A e o que casa de B**": `A LEFT JOIN B`.
+
 </div>
 <div>
 
 ```sql
--- A (correta)
 SELECT *
-FROM Tabela1 t1
-RIGHT JOIN Tabela2 t2
-  ON t1.id = t2.fk;
+FROM Pedido p
+LEFT JOIN Cliente c
+  ON p.id_cliente = c.id;
 ```
 
 </div>
 </div>
 
-- **C** ❌ (2 alunos) — `LEFT` preserva **Tabela1**, não Tabela2 (lado trocado).
-- **D** ❌ — `INNER` devolve só a interseção.
-
-<div class="dica">💡 Bônus (quase ninguém conhece): <code>RIGHT JOIN ... WHERE t1.id IS NULL</code> é o idioma para "<strong>o que existe de um lado e não do outro</strong>".</div>
+<div class="dica">💡 Idioma útil: <code>A LEFT JOIN B ... WHERE b.id IS NULL</code> = "o que existe em A e <strong>não</strong> em B".</div>
 
 ---
 
-## 6 · ADS Q23 — multiplicidade UML (não gastar aula)
+## A ponte: cardinalidade vira chave estrangeira
 
-Estudante 1..* Matrícula; cada Matrícula liga-se a um Curso (via Turma); Turma tem Horário e Professor. **Gabarito A** — 94,1% de acerto (16/17).
+`(mín, máx)`: o **primeiro** é o mínimo, o **segundo** o máximo.
 
-<div class="dica">💡 Use como <strong>argumento com a própria turma</strong>: vocês <strong>modelam bem</strong> (UML, multiplicidade, ER). O que falta é <strong>traduzir o modelo em consulta</strong> — que é exatamente a agregação de hoje.</div>
+- `(1,1)` = obrigatório e único · `(0,1)` = **opcional** e único · `(0,N)` / `(1,N)` = vários.
+- No **mínimo 0**, a FK **aceita nulo**; no mínimo 1, a FK é **NOT NULL**.
 
-<div class="aviso">🔗 Aprofundar modelagem → decks de BD: <strong>Modelagem Conceitual (ER)</strong> e <strong>Lógica (→ tabelas)</strong>, com os exercícios integradores.</div>
+<div class="aviso">⚠️ Pegadinha clássica: ler o mínimo <strong>0</strong> de <code>(0,1)</code> como se fosse obrigatório. "No máximo uma" <strong>não</strong> é "exatamente uma".</div>
+
+<div class="dica">🔗 Aprofundar: decks de BD <strong>Modelagem Conceitual (ER)</strong> e <strong>Lógica (→ tabelas)</strong>, com os exercícios integradores.</div>
 
 ---
 
-## Fecho — a regra e o que estudar por conta
+## Fecho — leve isto na prova
 
-<div class="dica">💡 <strong>A frase do aulão:</strong> em agregação, <strong>agrupa-se pelo que não está agregado</strong>; funções (<code>SUM</code>/<code>AVG</code>/<code>COUNT</code>) resumem cada grupo; <code>HAVING</code> filtra grupos; <code>ORDER BY</code> pode ordenar pela própria agregação.</div>
+<div class="dica">💡 <strong>Agregação em uma frase:</strong> forme os grupos com <code>GROUP BY</code>, resuma cada um com uma função (<code>SUM</code>/<code>AVG</code>/<code>COUNT</code>), <strong>agrupe pelo que não está agregado</strong>, filtre grupos com <code>HAVING</code> e ordene com <code>ORDER BY</code>.</div>
 
-**O simulado NÃO mediu (e o ENADE cobra) — revise nos decks de BD:**
+**Para revisar por conta — decks de BD:**
 
 <div class="cols">
 <div>
 
-- **Normalização** (o mais recorrente!) → deck *Normalização*
-- **Transações e ACID** → deck *Transações*
-- **Concorrência / isolamento** → deck *Concorrência*
+- **Normalização** (muito recorrente!)
+- **Transações e ACID**
+- **Concorrência / isolamento**
 
 </div>
 <div>
 
-- **Índices e desempenho** → deck *Views, SQL e Indexação*
-- **Álgebra relacional** → deck *Álgebra Relacional*
-- **NoSQL e CAP** → deck *NoSQL*
+- **Índices** (Views, SQL e Indexação)
+- **Álgebra relacional**
+- **NoSQL e CAP**
 
 </div>
 </div>
