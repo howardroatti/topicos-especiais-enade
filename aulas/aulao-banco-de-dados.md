@@ -403,7 +403,9 @@ LEFT JOIN Cliente c
 
 `(mín, máx)`: o **primeiro** é o mínimo, o **segundo** o máximo.
 
-- `(1,1)` = obrigatório e único · `(0,1)` = **opcional** e único · `(0,N)` / `(1,N)` = vários.
+- `(1,1)` = obrigatório e único
+- `(0,1)` = **opcional** e único
+- `(0,N)` / `(1,N)` = vários
 - No **mínimo 0**, a FK **aceita nulo**; no mínimo 1, a FK é **NOT NULL**.
 
 <div class="aviso">⚠️ Pegadinha clássica: ler o mínimo <strong>0</strong> de <code>(0,1)</code> como se fosse obrigatório. "No máximo uma" <strong>não</strong> é "exatamente uma".</div>
