@@ -151,19 +151,73 @@ SELECT loja, SUM(valor) FROM VENDAS GROUP BY loja, valor;   -- ⚠️
 
 ---
 
-## Vote no ar 🖐️ — qual totaliza por loja?
+## Vote no ar 🖐️ — contexto novo, mesma ideia
+
+<div class="cols">
+<div>
+
+Nova tabela `GOLS(time, jogador, gols)`:
+<table style="font-size:15px">
+<tr><th>time</th><th>jogador</th><th>gols</th></tr>
+<tr style="background:#e7effa"><td>Leões</td><td>Rui</td><td>2</td></tr>
+<tr style="background:#e7effa"><td>Leões</td><td>Téo</td><td>1</td></tr>
+<tr style="background:#fdeccf"><td>Tigres</td><td>Vin</td><td>3</td></tr>
+<tr style="background:#fdeccf"><td>Tigres</td><td>Zeca</td><td>1</td></tr>
+</table>
+
+</div>
+<div>
+
+Qual dá o **total de gols por TIME**?
 
 ```sql
--- Consulta 1
-SELECT loja, SUM(valor) FROM VENDAS GROUP BY loja;
--- Consulta 2
-SELECT loja, SUM(valor) FROM VENDAS GROUP BY loja, valor;
+-- 1
+SELECT time, SUM(gols)
+FROM GOLS
+GROUP BY time;
+-- 2
+SELECT time, SUM(gols)
+FROM GOLS
+GROUP BY time, jogador;
 ```
 
-<div class="dica">🖐️ <strong>1 ou 2?</strong> Pensem no que vira "um balde". Vamos rodar as duas na tela.</div>
+</div>
+</div>
 
-- **Consulta 1** → 3 linhas (Norte 150, Sul 280, Leste 30). ✅
-- **Consulta 2** → 5 linhas, cada valor sozinho. ❌ (o balde virou "loja + valor")
+<div class="dica">🖐️ <strong>1 ou 2?</strong> Antes de decidir: <strong>o que é "um balde" aqui?</strong> Voto de mão — e só então viramos o slide.</div>
+
+---
+
+## Vote no ar 🖐️ — a resposta
+
+<div class="cols">
+<div>
+
+**Consulta 1** — `GROUP BY time` ✅
+<table style="font-size:15px">
+<tr><th>time</th><th>SUM(gols)</th></tr>
+<tr style="background:#e7eeff"><td>Leões</td><td><strong>3</strong></td></tr>
+<tr style="background:#fdeccf"><td>Tigres</td><td><strong>4</strong></td></tr>
+</table>
+
+Um balde por <strong>time</strong> → total <strong>por time</strong>.
+
+</div>
+<div>
+
+**Consulta 2** — `GROUP BY time, jogador` ❌
+<table style="font-size:15px">
+<tr><th>time</th><th>jogador</th><th>SUM</th></tr>
+<tr style="background:#e7eeff"><td>Leões</td><td>Rui</td><td>2</td></tr>
+<tr style="background:#e7eeff"><td>Leões</td><td>Téo</td><td>1</td></tr>
+<tr style="background:#fdeccf"><td>Tigres</td><td>Vin</td><td>3</td></tr>
+<tr style="background:#fdeccf"><td>Tigres</td><td>Zeca</td><td>1</td></tr>
+</table>
+
+</div>
+</div>
+
+<div class="dica">💡 Pôr <code>jogador</code> no <code>GROUP BY</code> <strong>muda o balde</strong> → total por jogador, não por time. A regra de novo: agrupa-se só pelo que <strong>não está agregado</strong> (aqui, só <code>time</code>).</div>
 
 ---
 
